@@ -15,8 +15,8 @@
 [CmdletBinding(SupportsShouldProcess)]
 param (
     [switch]$DryRun,
-    [ValidateSet("windows", "vscode", "git", "powershell", "powertoys", "wsl", "terminal", "gpg", "conda")]
-    [string[]]$Components = @("windows", "vscode", "git", "powershell", "powertoys", "wsl", "terminal", "gpg", "conda"),
+    [ValidateSet("windows", "vscode", "git", "powershell", "powertoys", "wsl", "terminal", "gpg", "micromamba")]
+    [string[]]$Components = @("windows", "vscode", "git", "powershell", "powertoys", "wsl", "terminal", "gpg", "micromamba"),
     [switch]$SkipElevationCheck
 )
 

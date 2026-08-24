@@ -35,19 +35,25 @@ Set-Softlink -Path "$vscodeUserDir\settings.json" -Target (Join-Path $PSScriptRo
 # Install recommended extensions if code command is available
 $extensions = @(
     "ms-vscode-remote.remote-containers",
+    "ms-azuretools.vscode-containers",
     "ms-azuretools.vscode-docker",
+    "docker.docker",
     "github.codespaces",
-    "github.copilot",
     "github.copilot-chat",
     "github.vscode-github-actions",
-    "ms-toolsai.jupyter-keymap",
+    "ms-toolsai.jupyter",
     "ms-vscode.live-server",
     "ms-vscode.powershell",
+    "github.remotehub",
+    "ms-vscode.live-server",
     "ms-vscode-remote.remote-ssh",
     "ms-vscode-remote.remote-ssh-edit",
     "ms-vscode.remote-explorer",
     "ms-vscode-remote.remote-wsl",
-    "gruntfuggly.todo-tree"
+    "gruntfuggly.todo-tree",
+    "tamasfe.even-better-toml",
+    "redhat.vscode-yaml",
+    "esbenp.prettier-vscode"
 )
 
 if (Get-Command code -ErrorAction SilentlyContinue) {

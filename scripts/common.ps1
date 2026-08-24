@@ -1,7 +1,7 @@
 #Requires -Version 5.1
 <#
 .SYNOPSIS
-    Shared helper functions and utilities for windots setup scripts.
+    Shared helper functions and utilities for windots setup and uninstall scripts.
 #>
 
 function Test-Admin {
@@ -151,6 +151,51 @@ function Set-Softlink {
 
         if ($Hide) {
             Hide-File -Path $Path -DryRun:$DryRun
+        }
+    }
+}
+
+function Remove-Softlink {
+    <#
+    .SYNOPSIS
+        Safely removes a symbolic link and restores any .old backup file if present.
+    #>
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+        [string]$Path,
+        [switch]$DryRun
+    )
+
+    PROCESS {
+        if (Test-Path -Path $Path) {
+            $item = Get-Item -Path $Path -Force
+            $isSymlink = ($item.LinkType -eq "SymbolicLink") -or ($item.Attributes -band [System.IO.FileAttributes]::ReparsePoint)
+
+            if ($isSymlink) {
+                if ($DryRun) {
+                    Write-Host "[DryRun] Would remove softlink: $Path" -ForegroundColor DarkCyan
+                }
+                elseif ($PSCmdlet.ShouldProcess($Path, "Remove Softlink")) {
+                    Remove-Item -Path $Path -Force
+                    Write-Host "Removed softlink: $Path" -ForegroundColor Yellow
+                }
+            }
+            else {
+                Write-Verbose "Remove-Softlink: $Path is not a symbolic link, skipping."
+            }
+        }
+
+        # Check for .old backup to restore
+        $backupPath = "$Path.old"
+        if (Test-Path -Path $backupPath) {
+            if ($DryRun) {
+                Write-Host "[DryRun] Would restore backup $backupPath -> $Path" -ForegroundColor DarkCyan
+            }
+            elseif ($PSCmdlet.ShouldProcess($backupPath, "Restore to $Path")) {
+                Move-Item -Path $backupPath -Destination $Path -Force
+                Write-Host "Restored backup: $backupPath -> $Path" -ForegroundColor Green
+            }
         }
     }
 }

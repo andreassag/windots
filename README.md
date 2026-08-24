@@ -3,7 +3,7 @@
 > [!IMPORTANT]
 > Dotfiles repository intended for personal Windows 10/11 workstation setup. Feel free to use and adapt these configurations for your own workflow.
 
-This repository manages automated setup, configuration files, and software installation for Windows 10/11, PowerShell, Visual Studio Code, Git, Windows Terminal, WSL, GnuPG, PowerToys, and Conda.
+This repository manages automated setup, configuration files, and software installation for Windows 10/11, PowerShell, Visual Studio Code, Git, Windows Terminal, WSL, GnuPG, PowerToys, Micromamba, and R (with Radian and Rdots integration).
 
 ---
 
@@ -31,7 +31,29 @@ Set-ExecutionPolicy RemoteSigned -Scope Process -Force
 ### 4. Run specific components
 You can selectively configure individual tools or modules:
 ```powershell
-.\setup.ps1 -Components git,powershell,terminal
+.\setup.ps1 -Components git,powershell,terminal,micromamba
+```
+
+---
+
+## Uninstallation
+
+To revert symlinks and restore your original `.old` configuration files:
+
+```powershell
+# Windows PowerShell / pwsh:
+.\uninstall.ps1
+
+# Preview uninstallation without making changes:
+.\uninstall.ps1 -DryRun
+
+# Revert symlinks and remove the provisioned 'R' environment:
+.\uninstall.ps1 -RemoveEnvironments
+```
+
+Or via Bash (WSL / Git Bash):
+```bash
+bash uninstall.sh
 ```
 
 ---
@@ -40,20 +62,22 @@ You can selectively configure individual tools or modules:
 
 | Directory / File | Description |
 | :--- | :--- |
-| [`.githooks/`](.githooks/) | Git pre-commit hooks for syntax and linting checks |
+| [`.githooks/`](.githooks/) | Git pre-commit hooks for syntax, JSON, and softlink validation |
 | [`.github/workflows/`](.github/workflows/) | GitHub Actions CI/CD workflows |
 | [`.vscode/`](.vscode/) | Workspace settings and recommended extensions |
-| [`conda/`](conda/) | Miniconda configuration (`.condarc`) |
 | [`git/`](git/) | Git configuration (`config`, `gitconfig`, `.gitignore`, `.gitmessage`, `.gitattributes`) |
 | [`gpg/`](gpg/) | GnuPG configuration (`gpg.conf`, `common.conf`) |
+| [`micromamba/`](micromamba/) | Micromamba setup, `.mambarc`, R conda environment (with Radian), and Rdots integration |
 | [`powershell/`](powershell/) | PowerShell profile (`profile.ps1`) and module setup |
 | [`powertoys/`](powertoys/) | Microsoft PowerToys setup |
 | [`scripts/`](scripts/) | Shared helper functions (`common.ps1`) |
-| [`terminal/`](terminal/) | Windows Terminal profiles and keybindings (`settings.json`) |
+| [`terminal/`](terminal/) | Windows Terminal profiles, Git path injection, and R (radian) profile (`settings.json`) |
 | [`vscode/`](vscode/) | VS Code user settings and extension installations |
 | [`windows/`](windows/) | Windows 10/11 preferences, privacy, and cleanup |
 | [`wsl/`](wsl/) | Windows Subsystem for Linux global settings (`.wslconfig`) |
 | [`setup.ps1`](setup.ps1) | Main setup orchestrator |
+| [`uninstall.ps1`](uninstall.ps1) | PowerShell uninstallation and backup restoration script |
+| [`uninstall.sh`](uninstall.sh) | Cross-platform Bash uninstallation script |
 
 ---
 
@@ -88,3 +112,4 @@ This project is licensed under the `Unlicense`. For details, see [LICENSE](LICEN
 
 - [jimbrig/jimsdots](https://github.com/jimbrig/jimsdots) - inspiration for repository structure.
 - [jayharris/dotfiles-windows](https://github.com/jayharris/dotfiles-windows) - reference implementations and settings.
+- [randy3k/radian](https://github.com/randy3k/radian) - 21st century interactive R console.

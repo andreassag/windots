@@ -1,0 +1,7 @@
+# Micromamba Configuration
+channels:
+  - conda-forge
+channel_priority: strict
+always_yes: true
+show_channel_urls: true
+auto_activate_base: false

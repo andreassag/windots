@@ -1,7 +1,7 @@
 [user]
 	name = Andreas Sagen
 	email = 30706568+andreassag@users.noreply.github.com
-	signingkey = A2893BF0F2DF1B57
+	signingkey = 377CC066EF008466
 [commit]
 	gpgsign = true
 	template = ~/.config/git/.gitmessage
