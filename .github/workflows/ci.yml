@@ -60,7 +60,7 @@ jobs:
       - name: Test Specific Components
         shell: pwsh
         run: |
-          .\setup.ps1 -DryRun -Components git,vscode,terminal,powershell,micromamba -SkipElevationCheck
+          .\setup.ps1 -DryRun -Components git,vscode,terminal,powershell,mamba -SkipElevationCheck
 
       - name: Test Uninstaller in DryRun Mode
         shell: pwsh

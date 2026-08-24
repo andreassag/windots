@@ -36,7 +36,7 @@ foreach ($candidate in $gitBashCandidates) {
     }
 }
 
-# 2. Discover Micromamba path
+# 2. Discover Mamba / Micromamba path
 $mambaCandidates = @(
     "$HOME\micromamba\bin\micromamba.exe",
     "$HOME\.local\bin\micromamba.exe",
@@ -44,11 +44,14 @@ $mambaCandidates = @(
     "C:\Program Files\micromamba\micromamba.exe"
 )
 
+if (Get-Command mamba -ErrorAction SilentlyContinue) {
+    $mambaCandidates = @((Get-Command mamba).Source) + $mambaCandidates
+}
 if (Get-Command micromamba -ErrorAction SilentlyContinue) {
     $mambaCandidates = @((Get-Command micromamba).Source) + $mambaCandidates
 }
 
-$detectedMamba = "micromamba.exe"
+$detectedMamba = if (Get-Command mamba -ErrorAction SilentlyContinue) { "mamba.exe" } else { "micromamba.exe" }
 foreach ($candidate in $mambaCandidates) {
     if (Test-Path $candidate) {
         $detectedMamba = $candidate

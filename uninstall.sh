@@ -79,14 +79,21 @@ if [ -d ".git" ]; then
     fi
 fi
 
-# Optional remove conda/micromamba environment
+# Optional remove conda/mamba/micromamba environment
 if [ "$REMOVE_ENV" = true ]; then
-    if command -v micromamba >/dev/null 2>&1; then
+    MAMBA_CMD=""
+    if command -v mamba >/dev/null 2>&1; then
+        MAMBA_CMD="mamba"
+    elif command -v micromamba >/dev/null 2>&1; then
+        MAMBA_CMD="micromamba"
+    fi
+
+    if [ -n "$MAMBA_CMD" ]; then
         if [ "$DRY_RUN" = true ]; then
-            echo "[DryRun] Would remove Micromamba environment 'R'"
+            echo "[DryRun] Would remove $MAMBA_CMD environment 'R'"
         else
-            micromamba env remove -n R -y || true
-            echo "Removed Micromamba environment 'R'"
+            $MAMBA_CMD env remove -n R -y || true
+            echo "Removed $MAMBA_CMD environment 'R'"
         fi
     fi
 fi

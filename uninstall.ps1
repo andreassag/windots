@@ -92,15 +92,16 @@ if (Test-Path (Join-Path $PSScriptRoot ".git")) {
     }
 }
 
-# Optional: Remove provisioned 'R' environment in Micromamba
+# Optional: Remove provisioned 'R' environment in Mamba / Micromamba
 if ($RemoveEnvironments) {
-    if (Get-Command micromamba -ErrorAction SilentlyContinue) {
+    $mambaExec = if (Get-Command mamba -ErrorAction SilentlyContinue) { "mamba" } elseif (Get-Command micromamba -ErrorAction SilentlyContinue) { "micromamba" } else { $null }
+    if ($mambaExec) {
         if ($DryRun) {
-            Write-Host "[DryRun] Would remove Micromamba environment 'R'" -ForegroundColor DarkCyan
+            Write-Host "[DryRun] Would remove $mambaExec environment 'R'" -ForegroundColor DarkCyan
         }
-        elseif ($PSCmdlet.ShouldProcess("R", "Remove Micromamba Environment")) {
-            Write-Host "Removing Micromamba environment 'R'..." -ForegroundColor Cyan
-            micromamba env remove -n R -y
+        elseif ($PSCmdlet.ShouldProcess("R", "Remove Mamba Environment")) {
+            Write-Host "Removing $mambaExec environment 'R'..." -ForegroundColor Cyan
+            & $mambaExec env remove -n R -y
         }
     }
 }

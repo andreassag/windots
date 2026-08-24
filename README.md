@@ -31,7 +31,7 @@ Set-ExecutionPolicy RemoteSigned -Scope Process -Force
 ### 4. Run specific components
 You can selectively configure individual tools or modules:
 ```powershell
-.\setup.ps1 -Components git,powershell,terminal,micromamba
+.\setup.ps1 -Components git,powershell,terminal,mamba
 ```
 
 ---
@@ -67,7 +67,7 @@ bash uninstall.sh
 | [`.vscode/`](.vscode/) | Workspace settings and recommended extensions |
 | [`git/`](git/) | Git configuration (`config`, `gitconfig`, `.gitignore`, `.gitmessage`, `.gitattributes`) |
 | [`gpg/`](gpg/) | GnuPG configuration (`gpg.conf`, `common.conf`) |
-| [`micromamba/`](micromamba/) | Micromamba setup, `.mambarc`, R conda environment (with Radian), and Rdots integration |
+| [`mamba/`](mamba/) | Mamba / Micromamba setup, `.mambarc`, R environment (with Radian), and Rdots integration |
 | [`powershell/`](powershell/) | PowerShell profile (`profile.ps1`) and module setup |
 | [`powertoys/`](powertoys/) | Microsoft PowerToys setup |
 | [`scripts/`](scripts/) | Shared helper functions (`common.ps1`) |
