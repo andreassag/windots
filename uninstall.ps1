@@ -80,7 +80,7 @@ foreach ($link in $managedLinks) {
 
 # Reset Git hooks path
 if (Test-Path (Join-Path $PSScriptRoot ".git")) {
-    $currentHooksPath = git config --get core.hooksPath 2>$null
+    $currentHooksPath = & git config --get core.hooksPath 2>$null
     if ($currentHooksPath -eq ".githooks") {
         if ($DryRun) {
             Write-Host "[DryRun] Would reset git config core.hooksPath" -ForegroundColor DarkCyan
@@ -106,4 +106,5 @@ if ($RemoveEnvironments) {
     }
 }
 
+$global:LASTEXITCODE = 0
 Write-Host "`nUninstallation completed successfully." -ForegroundColor "Green"

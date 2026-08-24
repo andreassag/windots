@@ -88,4 +88,5 @@ foreach ($component in $Components) {
     }
 }
 
+$global:LASTEXITCODE = 0
 Write-Host "`nSetup completed successfully." -ForegroundColor "Green"
