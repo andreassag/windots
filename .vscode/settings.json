@@ -2,7 +2,9 @@
     "files.insertFinalNewline": true,
     "files.trimTrailingWhitespace": true,
     "files.eol": "\r\n",
-    "[powershell]": {},
+    "[powershell]": {
+        "files.eol": "\r\n"
+    },
     "[shellscript]": {
         "files.eol": "\n"
     },
@@ -15,7 +17,7 @@
         ".bash_*": "shellscript",
         "config": "properties",
         ".gitmessage": "git-commit",
-        ".wslconfig": "shellscript",
+        ".wslconfig": "ini"
     },
     "files.exclude": {
         "**/.git": true

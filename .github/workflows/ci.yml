@@ -1,0 +1,63 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  lint-and-validate:
+    name: Lint & Validation
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+
+      - name: Run Pre-Commit Checks & AST Validation
+        shell: pwsh
+        run: |
+          & .\.githooks\pre-commit.ps1
+
+      - name: Run PSScriptAnalyzer Rules
+        shell: pwsh
+        run: |
+          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error, Warning
+          if ($results) {
+              $results | Format-Table ScriptName, Line, Severity, RuleName, Message -AutoSize
+              $errors = $results | Where-Object { $_.Severity -eq "Error" }
+              if ($errors) {
+                  Write-Error "PSScriptAnalyzer found errors."
+                  exit 1
+              }
+          }
+          else {
+              Write-Host "No PSScriptAnalyzer warnings or errors found." -ForegroundColor Green
+          }
+
+  dry-run-test:
+    name: Windows Dry-Run Test
+    runs-on: windows-latest
+    needs: lint-and-validate
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Execute Setup in DryRun Mode
+        shell: pwsh
+        run: |
+          .\setup.ps1 -DryRun -SkipElevationCheck
+
+      - name: Test Specific Components
+        shell: pwsh
+        run: |
+          .\setup.ps1 -DryRun -Components git,vscode,terminal,powershell -SkipElevationCheck

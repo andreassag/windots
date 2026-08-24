@@ -1,0 +1,60 @@
+{
+    "workbench.colorTheme": "Default Dark Modern",
+    "workbench.iconTheme": "vs-seti",
+    "editor.fontFamily": "'CaskaydiaCove Nerd Font', 'Cascadia Code', Consolas, 'Courier New', monospace",
+    "editor.fontLigatures": true,
+    "editor.fontSize": 14,
+    "editor.lineHeight": 1.5,
+    "editor.tabSize": 4,
+    "editor.insertSpaces": true,
+    "editor.renderWhitespace": "selection",
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": false,
+    "editor.suggestSelection": "first",
+    "editor.minimap.enabled": true,
+    "editor.bracketPairColorization.enabled": true,
+    "editor.guides.bracketPairs": true,
+    "files.insertFinalNewline": true,
+    "files.trimTrailingWhitespace": true,
+    "files.eol": "\r\n",
+    "files.exclude": {
+        "**/.git": true,
+        "**/.svn": true,
+        "**/.hg": true,
+        "**/CVS": true,
+        "**/.DS_Store": true,
+        "**/Thumbs.db": true
+    },
+    "files.associations": {
+        ".bash_*": "shellscript",
+        "config": "properties",
+        ".gitmessage": "git-commit",
+        ".wslconfig": "ini",
+        "*.conf": "properties"
+    },
+    "[powershell]": {
+        "files.eol": "\r\n",
+        "editor.tabSize": 4
+    },
+    "[shellscript]": {
+        "files.eol": "\n",
+        "editor.tabSize": 2
+    },
+    "[json]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[jsonc]": {
+        "editor.defaultFormatter": "vscode.json-language-features"
+    },
+    "[markdown]": {
+        "files.trimTrailingWhitespace": false
+    },
+    "terminal.integrated.fontFamily": "'CaskaydiaCove Nerd Font', 'Cascadia Code', Consolas, monospace",
+    "terminal.integrated.fontSize": 14,
+    "terminal.integrated.defaultProfile.windows": "PowerShell",
+    "powershell.codeFormatting.preset": "OTBS",
+    "powershell.integratedConsole.showOnStartup": false,
+    "git.autofetch": true,
+    "git.enableSmartCommit": true,
+    "git.confirmSync": false
+}

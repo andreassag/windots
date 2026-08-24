@@ -1,30 +1,63 @@
-#!/usr/bin/env pwsh
+#Requires -Version 5.1
+<#
+.SYNOPSIS
+    Installs and configures Visual Studio Code on Windows.
+#>
+[CmdletBinding(SupportsShouldProcess)]
+param (
+    [switch]$DryRun
+)
 
-# Install VSCode
-$PATH = "$env:programfiles\Microsoft Visual Studio\Code"
-New-Directory -Path $PATH
-
-if (!(where.exe code)) {
-    winget install Microsoft.VisualStudioCode -a x64 -s machine -l $PATH
+# Import shared helper functions if not already loaded
+if (-not (Get-Command Set-Softlink -ErrorAction SilentlyContinue)) {
+    . (Join-Path -Path $PSScriptRoot -ChildPath "..\scripts\common.ps1")
 }
 
-# Create softlink to 'settings.json'.
-Set-Softlink -Path "$env:appdata\Code\User\settings.json" -Target "$PSScriptRoot\settings.json"
+# Install VS Code via winget if not installed
+if (-not (Get-Command code -ErrorAction SilentlyContinue)) {
+    if ($DryRun) {
+        Write-Host "[DryRun] Would install Visual Studio Code via winget" -ForegroundColor DarkCyan
+    }
+    elseif ($PSCmdlet.ShouldProcess("Visual Studio Code", "Install via winget")) {
+        Write-Host "Installing Visual Studio Code..." -ForegroundColor Cyan
+        winget install --id Microsoft.VisualStudioCode -e --source winget --accept-source-agreements --accept-package-agreements
+    }
+}
+else {
+    Write-Host "Visual Studio Code is already installed." -ForegroundColor DarkGray
+}
 
-# Install packages
-if (where.exe code) {
-    code --install-extension ms-vscode-remote.remote-containers
-    code --install-extension ms-azuretools.vscode-docker
-    code --install-extension github.codespaces
-    code --install-extension github.copilot
-    code --install-extension github.copilot-chat
-    code --install-extension github.vscode-github-actions
-    code --install-extension ms-toolsai.jupyter-keymap
-    code --install-extension ms-vscode.live-server
-    code --install-extension ms-vscode.powershell
-    code --install-extension ms-vscode-remote.remote-ssh
-    code --install-extension ms-vscode-remote.remote-ssh-edit
-    code --install-extension ms-vscode.remote-explorer
-    code --install-extension ms-vscode-remote.remote-wsl
-    code --install-extension gruntfuggly.todo-tree
+# Create softlink for VS Code User settings.json
+$vscodeUserDir = "$env:APPDATA\Code\User"
+New-Directory -Path $vscodeUserDir -DryRun:$DryRun
+Set-Softlink -Path "$vscodeUserDir\settings.json" -Target (Join-Path $PSScriptRoot "settings.json") -DryRun:$DryRun
+
+# Install recommended extensions if code command is available
+$extensions = @(
+    "ms-vscode-remote.remote-containers",
+    "ms-azuretools.vscode-docker",
+    "github.codespaces",
+    "github.copilot",
+    "github.copilot-chat",
+    "github.vscode-github-actions",
+    "ms-toolsai.jupyter-keymap",
+    "ms-vscode.live-server",
+    "ms-vscode.powershell",
+    "ms-vscode-remote.remote-ssh",
+    "ms-vscode-remote.remote-ssh-edit",
+    "ms-vscode.remote-explorer",
+    "ms-vscode-remote.remote-wsl",
+    "gruntfuggly.todo-tree"
+)
+
+if (Get-Command code -ErrorAction SilentlyContinue) {
+    foreach ($ext in $extensions) {
+        if ($DryRun) {
+            Write-Host "[DryRun] Would install VS Code extension: $ext" -ForegroundColor DarkCyan
+        }
+        else {
+            Write-Host "Installing extension: $ext" -ForegroundColor DarkGray
+            code --install-extension $ext --force | Out-Null
+        }
+    }
 }

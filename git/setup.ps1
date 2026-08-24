@@ -1,25 +1,43 @@
-#!/usr/bin/env pwsh
+#Requires -Version 5.1
+<#
+.SYNOPSIS
+    Installs and configures Git on Windows.
+#>
+[CmdletBinding(SupportsShouldProcess)]
+param (
+    [switch]$DryRun
+)
 
-# Install git
-if (!(where.exe git)) {
-    # TODO: Allow interactive, see issue #8
-    winget install Git.Git --scope=machine --architecture=x64
+# Import shared helper functions if not already loaded
+if (-not (Get-Command Set-Softlink -ErrorAction SilentlyContinue)) {
+    . (Join-Path -Path $PSScriptRoot -ChildPath "..\scripts\common.ps1")
 }
 
-# Create related directories
-New-Directory -Path "$HOME\.config\git"
+# Install Git via winget if not present
+if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
+    if ($DryRun) {
+        Write-Host "[DryRun] Would install Git via winget" -ForegroundColor DarkCyan
+    }
+    elseif ($PSCmdlet.ShouldProcess("Git", "Install via winget")) {
+        Write-Host "Installing Git..." -ForegroundColor Cyan
+        winget install --id Git.Git -e --source winget --accept-source-agreements --accept-package-agreements
+    }
+}
+else {
+    Write-Host "Git is already installed: $(git --version)" -ForegroundColor DarkGray
+}
 
-# Create softlink to 'config'.
-Set-Softlink -Path "$HOME\.config\git\config" -Target "$PSScriptRoot\config"
+# Create Git config directory in user profile
+New-Directory -Path "$HOME\.config\git" -DryRun:$DryRun
 
-# Create softlink to 'gitconfig'.
-Set-Softlink -Path "$env:programfiles\git\etc\gitconfig" -Target "$PSScriptRoot\gitconfig"
+# Create softlinks for Git configuration files
+Set-Softlink -Path "$HOME\.config\git\config" -Target (Join-Path $PSScriptRoot "config") -DryRun:$DryRun
+Set-Softlink -Path "$HOME\.config\git\.gitignore" -Target (Join-Path $PSScriptRoot ".gitignore") -DryRun:$DryRun
+Set-Softlink -Path "$HOME\.config\git\.gitattributes" -Target (Join-Path $PSScriptRoot ".gitattributes") -DryRun:$DryRun
+Set-Softlink -Path "$HOME\.config\git\.gitmessage" -Target (Join-Path $PSScriptRoot ".gitmessage") -DryRun:$DryRun
 
-# Create softlink to '.gitignore'.
-Set-Softlink -Path "$HOME\.config\git\.gitignore" -Target "$PSScriptRoot\.gitignore"
-
-# Create softlink to '.gitattributes'.
-Set-Softlink -Path "$HOME\.config\git\.gitattributes" -Target "$PSScriptRoot\.gitattributes"
-
-# Create softlink to '.gitmessage'.
-Set-Softlink -Path "$HOME\.config\git\.gitmessage" -Target "$PSScriptRoot\.gitmessage"
+# Link system-wide gitconfig if Git program directory exists
+$systemGitConfig = "$env:programfiles\Git\etc\gitconfig"
+if (Test-Path (Split-Path $systemGitConfig -Parent)) {
+    Set-Softlink -Path $systemGitConfig -Target (Join-Path $PSScriptRoot "gitconfig") -DryRun:$DryRun
+}

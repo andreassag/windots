@@ -1,13 +1,9 @@
 always_yes: true
 channels:
+  - conda-forge
   - pytorch
   - nvidia
-  - intel
   - bioconda
-  - r
-  - bioconda
-  - conda-forge
-  - anaconda
   - defaults
 channel_priority: strict
 default_threads: 4

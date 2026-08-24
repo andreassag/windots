@@ -9,15 +9,14 @@
 	sslBackend = schannel
 [core]
 	fileMode = true
-	fsmonitor = true
 	autocrlf = true
 	hidedotfiles = false
 	protectntfs = true
 	safecrlf = warn
 	fscache = true
 	symlinks = true
-	useBuiltinFSMonitor = true
-	editor = code --wait
+	fsmonitor = true
+	editor = \"C:\\\\Program Files\\\\Microsoft VS Code\\\\bin\\\\code\" --wait
 [pull]
 	rebase = false
 [credential]

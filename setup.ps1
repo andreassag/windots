@@ -1,98 +1,91 @@
-#Requires -Version 5
+#Requires -Version 5.1
+<#
+.SYNOPSIS
+    Main setup script for Windows dotfiles (windots).
+.DESCRIPTION
+    Configures Windows, terminal, developer tools, shell profiles, and creates
+    symbolic links to configuration files.
+.PARAMETER DryRun
+    Simulates actions without making changes to the system.
+.PARAMETER Components
+    Specifies which component modules to run. Default is all.
+.PARAMETER SkipElevationCheck
+    Bypasses administrative privilege check (useful for dry runs or testing).
+#>
+[CmdletBinding(SupportsShouldProcess)]
+param (
+    [switch]$DryRun,
+    [ValidateSet("windows", "vscode", "git", "powershell", "powertoys", "wsl", "terminal", "gpg", "conda")]
+    [string[]]$Components = @("windows", "vscode", "git", "powershell", "powertoys", "wsl", "terminal", "gpg", "conda"),
+    [switch]$SkipElevationCheck
+)
 
-if (($PSVersionTable.PSVersion.Major) -lt 5) {
-    Write-Output "PowerShell 5 or later is required to run."
-    break
+$ErrorActionPreference = "Stop"
+
+# Import shared helper functions
+$commonScript = Join-Path -Path $PSScriptRoot -ChildPath "scripts\common.ps1"
+if (Test-Path -Path $commonScript) {
+    . $commonScript
+}
+else {
+    throw "Required helper script '$commonScript' not found."
 }
 
-$isadmin = (new-object System.Security.Principal.WindowsPrincipal([System.Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole("Administrators")
-if (-not ($isadmin)) { throw "Must have Admininstrative Priveledges..." }
-
-Write-Host "Configuring System..." -ForegroundColor "Yellow"
-
-# Custom functions
-function Hide-File {
-    param([Parameter(Mandatory)][string]$Path)
-
-    if (!(((Get-Item -Path $Path -Force).Attributes.ToString() -Split ", ") -Contains "Hidden")) {
-        (Get-Item -Path $Path -Force).Attributes += "Hidden"
+# Check administrative privileges
+if (-not $SkipElevationCheck -and -not $DryRun) {
+    if (-not (Test-Admin)) {
+        throw "Administrative privileges required. Please run PowerShell as Administrator."
     }
 }
 
-function New-Directory {
-    param ([Parameter(Mandatory)][string]$Path, [switch]$Hide)
+Write-Host "=== Configuring Windows Dotfiles ===" -ForegroundColor "Cyan"
+if ($DryRun) {
+    Write-Host "[DRY RUN MODE ENABLED - No changes will be made]" -ForegroundColor "Yellow"
+}
 
-    PROCESS {
-        If (!(test-path $Path)) {
-            New-Item -Path $Path -ItemType "directory" | Out-Null
+# Configure local git hooks if running inside a git repository
+if (Test-Path (Join-Path $PSScriptRoot ".git")) {
+    $hooksDir = Join-Path $PSScriptRoot ".githooks"
+    if (Test-Path $hooksDir) {
+        Write-Host "Configuring git hooks path to .githooks..." -ForegroundColor "DarkGray"
+        if (-not $DryRun) {
+            git config core.hooksPath .githooks
         }
-
-        if ($Hide) { Hide-File($Path) }
     }
 }
 
-function Set-Softlink {
-    param ([Parameter(Mandatory)][string]$Path, [Parameter(Mandatory)][string]$Target, [switch]$Hide)
-
-    PROCESS {
-        if (Test-Path -Path $Path) {
-            if (!(Get-Item $Path -Force).LinkType -eq "SymbolicLink") {
-                Write-Host "Old file renamed to $((Get-Item -Path $Path).Name).old..." -ForegroundColor Blue
-                Rename-Item -Path $Path -NewName "$((Get-Item -Path $Path).Name).old"
-
-                Write-Host "Linking: $Target->$Path..." -ForegroundColor Blue
-                New-Item -ItemType SymbolicLink -Path $Path -Target $Target -Force | Out-Null
-            }
+# Trust PSGallery for PowerShell package management
+if (-not $DryRun) {
+    try {
+        $gallery = Get-PSRepository -Name "PSGallery" -ErrorAction SilentlyContinue
+        if ($gallery -and $gallery.InstallationPolicy -ne "Trusted") {
+            Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted -ErrorAction SilentlyContinue
         }
-        else {
-            Write-Host "Linking: $Target->$Path..." -ForegroundColor Blue
-            New-Item -ItemType SymbolicLink -Path $Path -Target $Target -Force | Out-Null
+    }
+    catch {
+        Write-Warning "Could not configure PSGallery repository policy: $_"
+    }
+}
+
+# Create core user directories
+New-Directory -Path "$HOME\repo" -DryRun:$DryRun
+New-Directory -Path "$HOME\.config" -Hide -DryRun:$DryRun
+
+# Execute selected component setup scripts
+foreach ($component in $Components) {
+    $componentScript = Join-Path -Path $PSScriptRoot -ChildPath "$component\setup.ps1"
+    if (Test-Path -Path $componentScript) {
+        Write-Host "`n--> Running setup for: $component" -ForegroundColor "Yellow"
+        try {
+            . $componentScript -DryRun:$DryRun
         }
-
-        if ($Hide) { Hide-File($Path) }
+        catch {
+            Write-Error "Error executing $component setup: $_"
+        }
+    }
+    else {
+        Write-Warning "Setup script for component '$component' not found at '$componentScript'."
     }
 }
 
-function Find-Installed( $programName ) {
-    $x86_check = ((Get-ChildItem "HKLM:Software\Microsoft\Windows\CurrentVersion\Uninstall") |
-        Where-Object { $_."Name" -like "*$programName*" } ).Length -gt 0;
-
-    if (Test-Path 'HKLM:Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall') {
-        $x64_check = ((Get-ChildItem "HKLM:Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall") |
-            Where-Object { $_."Name" -like "*$programName*" } ).Length -gt 0;
-    }
-    return $x86_check -or $x64_check;
-}
-
-# Trust PSrepository
-Set-PSRepository -Name "PSGallery" -InstallationPolicy Trusted
-
-# Create directories
-New-Directory -Path "$HOME\repo"
-New-Directory -Path "$HOME\.config" -Hide
-
-# Windows
-Invoke-Expression -Command "$PSScriptRoot\windows\setup.ps1"
-
-# Visual Studio Code
-Invoke-Expression -Command "$PSScriptRoot\vscode\setup.ps1"
-
-# Git
-Invoke-Expression -Command "$PSScriptRoot\git\setup.ps1"
-
-# Powershell
-Invoke-Expression -Command "$PSScriptRoot\powershell\setup.ps1"
-
-# PowerToys
-Invoke-Expression -Command "$PSScriptRoot\powertoys\setup.ps1"
-
-# WSL
-Invoke-Expression -Command "$PSScriptRoot\wsl\setup.ps1"
-
-# Windows terminal
-Invoke-Expression -Command "$PSScriptRoot\terminal\setup.ps1"
-
-# GPG
-Invoke-Expression -Command "$PSScriptRoot\gpg\setup.ps1"
-
-Write-Host "Setup finished." -ForegroundColor Green
+Write-Host "`nSetup completed successfully." -ForegroundColor "Green"

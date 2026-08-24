@@ -1,43 +1,14 @@
-# SUBJECT
-# -------
-# <type>: When applied, this commit will:
-# |<----  MAX 50 CHARACTERS  ---->|
+# <type>(<scope>): <short summary>
+# │       │             │
+# │       │             └─⫸ Summary in present tense. Not capitalized. No period at the end.
+# │       └───────────────⫸ Scope: component, module, or feature affected (optional).
+# └───────────────────────⫸ Type: feat, fix, docs, style, refactor, perf, test, chore, revert.
 #
-# Type can be:
-#   chore    ➔ no production code change (e.g. updating grunt tasks)
-#   docs     ➔ changes to documentation
-#   feat     ➔ new feature
-#   fix      ➔ bug fix
-#   major    ➔ breaking change
-#   refactor ➔ refactoring production code
-#   style    ➔ no code change (e.g. formatting, missing semi colons)
-#   test     ➔ no production code change (e.g. adding or refactoring tests)
-#
-# Conventions:
-#   capitalize the subject line;
-#   use the imperative mood in the subject line;
-#   do not end the subject line with a period;
-#   separate subject from body with a blank line.
-#
-# Examples:
-#  feat: support for protocol v3
-#  fix: text rendering in CJK languages
-#  refactor: CRTC handling
-#
-
-# CHANGE DESCRIPTION
-# ------------------
-# This change is made because:
-# |<---- MAX 72 CHARACTERS ---->|
-#
-# Conventions:
-#  use the body to explain what and why vs. how;
-#  can use multiple lines with "-" for bullet points in body.
-#
-
-# SOURCES
-# -------
-# Provide links or keys to any relevant tickets, articles or other resources
-#
-# Examples:
-#  Github issue #23
+# Remember to:
+# - Capitalize the subject line if not following conventional commits
+# - Limit the subject line to 50 characters
+# - Do not end the subject line with a period
+# - Separate subject from body with a blank line
+# - Use the imperative mood in the subject line
+# - Wrap the body at 72 characters
+# - Use the body to explain what and why vs. how
