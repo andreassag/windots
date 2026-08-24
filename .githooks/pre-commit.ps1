@@ -64,8 +64,8 @@ foreach ($setupScript in $setupScripts) {
     $dir = $setupScript.DirectoryName
 
     # Find Set-Softlink calls with Join-Path $PSScriptRoot "<file>"
-    $matches = [regex]::Matches($content, 'Join-Path\s+\$PSScriptRoot\s+["'']([^"'']+)["'']')
-    foreach ($m in $matches) {
+    $linkMatches = [regex]::Matches($content, 'Join-Path\s+\$PSScriptRoot\s+["'']([^"'']+)["'']')
+    foreach ($m in $linkMatches) {
         $relTarget = $m.Groups[1].Value
         $targetPath = Join-Path $dir $relTarget
         if (-not (Test-Path $targetPath)) {

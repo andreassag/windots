@@ -18,30 +18,30 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install PSScriptAnalyzer
+      - name: Ensure PSScriptAnalyzer
         shell: pwsh
         run: |
-          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+          if (-not (Get-Module -ListAvailable -Name PSScriptAnalyzer)) {
+              Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser -AllowClobber -SkipPublisherCheck
+          }
 
       - name: Run Pre-Commit Checks & AST Validation
         shell: pwsh
         run: |
           & .\.githooks\pre-commit.ps1
 
-      - name: Run PSScriptAnalyzer Rules
+      - name: Run PSScriptAnalyzer Error Check
         shell: pwsh
         run: |
-          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error, Warning
-          if ($results) {
-              $results | Format-Table ScriptName, Line, Severity, RuleName, Message -AutoSize
-              $errors = $results | Where-Object { $_.Severity -eq "Error" }
-              if ($errors) {
-                  Write-Error "PSScriptAnalyzer found errors."
-                  exit 1
-              }
+          Import-Module PSScriptAnalyzer
+          $errors = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error
+          if ($errors) {
+              $errors | Format-Table ScriptName, Line, RuleName, Message -AutoSize
+              Write-Host "PSScriptAnalyzer found errors." -ForegroundColor Red
+              exit 1
           }
           else {
-              Write-Host "No PSScriptAnalyzer warnings or errors found." -ForegroundColor Green
+              Write-Host "PSScriptAnalyzer passed with 0 critical errors." -ForegroundColor Green
           }
 
   dry-run-test:

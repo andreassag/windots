@@ -219,12 +219,12 @@ function Find-Installed {
 
     foreach ($path in $regPaths) {
         if (Test-Path (Split-Path -Path $path -Parent)) {
-            $matches = Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
+            $foundMatches = Get-ItemProperty -Path $path -ErrorAction SilentlyContinue |
                 Where-Object {
                     $_.DisplayName -like "*$ProgramName*" -or
                     $_.PSChildName -like "*$ProgramName*"
                 }
-            if ($matches) {
+            if ($foundMatches) {
                 return $true
             }
         }
