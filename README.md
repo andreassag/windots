@@ -63,14 +63,14 @@ bash uninstall.sh
 | Directory / File | Description |
 | :--- | :--- |
 | [`.githooks/`](.githooks/) | Git pre-commit hooks for syntax, JSON, and softlink validation |
-| [`.github/workflows/`](.github/workflows/) | GitHub Actions CI/CD workflows |
+| [`.github/`](.github/) | GitHub Actions CI/CD workflows, Dependabot config, and automerge workflow |
 | [`.vscode/`](.vscode/) | Workspace settings and recommended extensions |
 | [`git/`](git/) | Git configuration (`config`, `gitconfig`, `.gitignore`, `.gitmessage`, `.gitattributes`) |
 | [`gpg/`](gpg/) | GnuPG configuration (`gpg.conf`, `common.conf`) |
 | [`mamba/`](mamba/) | Mamba / Micromamba setup, `.mambarc`, R environment (with Radian), and Rdots integration |
 | [`powershell/`](powershell/) | PowerShell profile (`profile.ps1`) and module setup |
 | [`powertoys/`](powertoys/) | Microsoft PowerToys setup |
-| [`scripts/`](scripts/) | Shared helper functions (`common.ps1`) |
+| [`scripts/`](scripts/) | Shared helper functions (`common.ps1`, `automerge.ps1`) |
 | [`terminal/`](terminal/) | Windows Terminal profiles, Git path injection, and R (radian) profile (`settings.json`) |
 | [`vscode/`](vscode/) | VS Code user settings and extension installations |
 | [`windows/`](windows/) | Windows 10/11 preferences, privacy, and cleanup |
