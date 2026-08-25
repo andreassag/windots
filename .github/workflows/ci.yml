@@ -16,7 +16,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Ensure PSScriptAnalyzer
         shell: pwsh
@@ -50,7 +50,7 @@ jobs:
     needs: lint-and-validate
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Execute Setup in DryRun Mode
         shell: pwsh
