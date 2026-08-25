@@ -1,122 +1,126 @@
-{
-    "$help": "https://aka.ms/terminal-documentation",
-    "$schema": "https://aka.ms/terminal-profiles-schema",
-    "actions": [
-        {
-            "command": {
-                "action": "copy",
-                "singleLine": false
-            },
-            "id": "User.copy.644BA8F2"
-        },
-        {
-            "command": "paste",
-            "id": "User.paste"
-        },
-        {
-            "command": {
-                "action": "splitPane",
-                "split": "auto",
-                "splitMode": "duplicate"
-            },
-            "id": "User.splitPane.A6751878"
-        },
-        {
-            "command": "find",
-            "id": "User.find"
-        }
-    ],
-    "copyFormatting": "none",
-    "copyOnSelect": false,
-    "defaultProfile": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
-    "keybindings": [
-        {
-            "id": "User.copy.644BA8F2",
-            "keys": "ctrl+c"
-        },
-        {
-            "id": "User.find",
-            "keys": "ctrl+shift+f"
-        },
-        {
-            "id": "User.paste",
-            "keys": "ctrl+v"
-        },
-        {
-            "id": "User.splitPane.A6751878",
-            "keys": "alt+shift+d"
-        }
-    ],
-    "newTabMenu": [
-        {
-            "type": "remainingProfiles"
-        }
-    ],
-    "profiles": {
-        "defaults": {
-            "font": {
-                "face": "CaskaydiaCove Nerd Font"
-            }
-        },
-        "list": [
-            {
-                "colorScheme": "Campbell Powershell",
-                "commandline": "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
-                "font": {
-                    "face": "CaskaydiaCove Nerd Font"
-                },
-                "guid": "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
-                "hidden": false,
-                "name": "Windows PowerShell",
-                "opacity": 90,
-                "useAcrylic": true
-            },
-            {
-                "commandline": "%SystemRoot%\\System32\\cmd.exe",
-                "guid": "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
-                "hidden": false,
-                "name": "Command Prompt"
-            },
-            {
-                "guid": "{2ece5bfe-50ed-5f3a-ab87-5cd4baafed2b}",
-                "hidden": false,
-                "name": "Git Bash",
-                "commandline": "%ProgramFiles%\\Git\\bin\\bash.exe -i -l",
-                "icon": "%ProgramFiles%\\Git\\mingw64\\share\\git\\git-for-windows.ico"
-            },
-            {
-                "colorScheme": "Solarized Dark",
-                "commandline": "micromamba.exe run -n R radian",
-                "font": {
-                    "face": "CaskaydiaCove Nerd Font"
-                },
-                "guid": "{8b6d8ec4-512c-4c4f-a9db-484725357f89}",
-                "hidden": false,
-                "name": "R (radian)",
-                "opacity": 95,
-                "useAcrylic": true
-            },
-            {
-                "guid": "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
-                "hidden": false,
-                "name": "Azure Cloud Shell",
-                "source": "Windows.Terminal.Azure"
-            },
-            {
-                "guid": "{5b48e3ee-dff9-511f-9a9b-bcf51d4f39aa}",
-                "hidden": false,
-                "name": "Ubuntu",
-                "source": "Microsoft.WSL"
-            },
-            {
-                "colorScheme": "Solarized Dark",
-                "guid": "{69b9104a-e9c4-522f-8381-3ac21ce4a290}",
-                "hidden": false,
-                "name": "openSUSE-Tumbleweed",
-                "source": "Microsoft.WSL"
-            }
-        ]
-    },
-    "schemes": [],
-    "themes": []
+﻿{
+    "$help":  "https://aka.ms/terminal-documentation",
+    "$schema":  "https://aka.ms/terminal-profiles-schema",
+    "actions":  [
+                    {
+                        "command":  {
+                                        "action":  "copy",
+                                        "singleLine":  false
+                                    },
+                        "id":  "User.copy.644BA8F2"
+                    },
+                    {
+                        "command":  "paste",
+                        "id":  "User.paste"
+                    },
+                    {
+                        "command":  {
+                                        "action":  "splitPane",
+                                        "split":  "auto",
+                                        "splitMode":  "duplicate"
+                                    },
+                        "id":  "User.splitPane.A6751878"
+                    },
+                    {
+                        "command":  "find",
+                        "id":  "User.find"
+                    }
+                ],
+    "copyFormatting":  "none",
+    "copyOnSelect":  false,
+    "defaultProfile":  "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+    "keybindings":  [
+                        {
+                            "id":  "User.copy.644BA8F2",
+                            "keys":  "ctrl+c"
+                        },
+                        {
+                            "id":  "User.find",
+                            "keys":  "ctrl+shift+f"
+                        },
+                        {
+                            "id":  "User.paste",
+                            "keys":  "ctrl+v"
+                        },
+                        {
+                            "id":  "User.splitPane.A6751878",
+                            "keys":  "alt+shift+d"
+                        }
+                    ],
+    "newTabMenu":  [
+                       {
+                           "type":  "remainingProfiles"
+                       }
+                   ],
+    "profiles":  {
+                     "defaults":  {
+                                      "font":  {
+                                                   "face":  "CaskaydiaCove Nerd Font"
+                                               }
+                                  },
+                     "list":  [
+                                  {
+                                      "colorScheme":  "Campbell Powershell",
+                                      "commandline":  "%SystemRoot%\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+                                      "font":  {
+                                                   "face":  "CaskaydiaCove Nerd Font"
+                                               },
+                                      "guid":  "{61c54bbd-c2c6-5271-96e7-009a87ff44bf}",
+                                      "hidden":  false,
+                                      "name":  "Windows PowerShell",
+                                      "opacity":  90,
+                                      "useAcrylic":  true
+                                  },
+                                  {
+                                      "commandline":  "%SystemRoot%\\System32\\cmd.exe",
+                                      "guid":  "{0caa0dad-35be-5f56-a8ff-afceeeaa6101}",
+                                      "hidden":  false,
+                                      "name":  "Command Prompt"
+                                  },
+                                  {
+                                      "guid":  "{2ece5bfe-50ed-5f3a-ab87-5cd4baafed2b}",
+                                      "hidden":  false,
+                                      "name":  "Git Bash",
+                                      "commandline":  "\"C:\\Program Files\\Git\\bin\\bash.exe\" -i -l",
+                                      "icon":  "C:\\Program Files\\Git\\mingw64\\share\\git\\git-for-windows.ico"
+                                  },
+                                  {
+                                      "colorScheme":  "Solarized Dark",
+                                      "commandline":  "micromamba.exe run -n R radian",
+                                      "font":  {
+                                                   "face":  "CaskaydiaCove Nerd Font"
+                                               },
+                                      "guid":  "{8b6d8ec4-512c-4c4f-a9db-484725357f89}",
+                                      "hidden":  false,
+                                      "name":  "R (radian)",
+                                      "opacity":  95,
+                                      "useAcrylic":  true
+                                  },
+                                  {
+                                      "guid":  "{b453ae62-4e3d-5e58-b989-0a998ec441b8}",
+                                      "hidden":  false,
+                                      "name":  "Azure Cloud Shell",
+                                      "source":  "Windows.Terminal.Azure"
+                                  },
+                                  {
+                                      "guid":  "{5b48e3ee-dff9-511f-9a9b-bcf51d4f39aa}",
+                                      "hidden":  false,
+                                      "name":  "Ubuntu",
+                                      "source":  "Microsoft.WSL"
+                                  },
+                                  {
+                                      "colorScheme":  "Solarized Dark",
+                                      "guid":  "{69b9104a-e9c4-522f-8381-3ac21ce4a290}",
+                                      "hidden":  false,
+                                      "name":  "openSUSE-Tumbleweed",
+                                      "source":  "Microsoft.WSL"
+                                  }
+                              ]
+                 },
+    "schemes":  [
+
+                ],
+    "themes":  [
+
+               ]
 }

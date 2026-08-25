@@ -14,33 +14,8 @@ if (-not (Get-Command Set-Softlink -ErrorAction SilentlyContinue)) {
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\scripts\common.ps1")
 }
 
-# 1. Install Micromamba if not present
-if (-not (Get-Command micromamba -ErrorAction SilentlyContinue)) {
-    if ($DryRun) {
-        Write-Host "[DryRun] Would install Micromamba via winget (Mamba.Micromamba)" -ForegroundColor DarkCyan
-    }
-    elseif ($PSCmdlet.ShouldProcess("Micromamba", "Install via winget")) {
-        Write-Host "Installing Micromamba..." -ForegroundColor Cyan
-        try {
-            winget install --id Mamba.Micromamba -e --source winget --accept-source-agreements --accept-package-agreements
-        }
-        catch {
-            Write-Warning "Winget installation failed, attempting direct standalone bootstrap: $_"
-            $mambaBinDir = "$HOME\.local\bin"
-            New-Directory -Path $mambaBinDir
-            # Download standalone micromamba binary
-            Invoke-WebRequest -Uri "https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-win-64.exe" -OutFile "$mambaBinDir\micromamba.exe"
-            $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
-            if ($userPath -notlike "*$mambaBinDir*") {
-                [Environment]::SetEnvironmentVariable("Path", "$userPath;$mambaBinDir", "User")
-                $env:PATH = "$env:PATH;$mambaBinDir"
-            }
-        }
-    }
-}
-else {
-    Write-Host "Micromamba is already installed." -ForegroundColor DarkGray
-}
+# 1. Ensure Micromamba is installed and available
+$mambaExe = Ensure-Micromamba -DryRun:$DryRun
 
 # 2. Link Micromamba / Conda configurations
 $mambarcSource = Join-Path -Path $PSScriptRoot -ChildPath ".mambarc"

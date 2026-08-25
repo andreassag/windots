@@ -13,14 +13,14 @@ if (-not (Get-Command Set-Softlink -ErrorAction SilentlyContinue)) {
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\scripts\common.ps1")
 }
 
-# Install Git via winget if not present
+# Install Git via Micromamba (or fallback to winget) if not present
 if (-not (Get-Command git -ErrorAction SilentlyContinue)) {
-    if ($DryRun) {
-        Write-Host "[DryRun] Would install Git via winget" -ForegroundColor DarkCyan
-    }
-    elseif ($PSCmdlet.ShouldProcess("Git", "Install via winget")) {
-        Write-Host "Installing Git..." -ForegroundColor Cyan
-        winget install --id Git.Git -e --source winget --accept-source-agreements --accept-package-agreements
+    $installed = Install-MambaPackage -PackageName "git" -CommandCheck "git" -DryRun:$DryRun
+    if (-not $installed -and -not $DryRun) {
+        if ($PSCmdlet.ShouldProcess("Git", "Install via winget")) {
+            Write-Host "Falling back to winget for Git..." -ForegroundColor Cyan
+            winget install --id Git.Git -e --source winget --accept-source-agreements --accept-package-agreements
+        }
     }
 }
 else {

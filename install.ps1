@@ -156,12 +156,113 @@ else {
 }
 
 # -----------------------------------------------------------------------------
-# 3. Autonomous Dependency Installation (Winget, Git, PowerShell 7, Terminal, GPG)
+# 3. Autonomous Dependency Installation (Micromamba, Git, GnuPG, CLI & GUI Tools)
 # -----------------------------------------------------------------------------
 if (-not $SkipDependencies) {
     Write-Host "`nChecking core system dependencies..." -ForegroundColor "Yellow"
 
-    # Ensure Winget (Windows Package Manager)
+    # 3.1 Bootstrap Standalone Micromamba
+    $mambaBinDir = "$HOME\.local\bin"
+    $mambaExe = $null
+
+    if (Get-Command micromamba -ErrorAction SilentlyContinue) {
+        $mambaExe = (Get-Command micromamba).Source
+    }
+    else {
+        $candidatePaths = @(
+            "$mambaBinDir\micromamba.exe",
+            "$HOME\micromamba\bin\micromamba.exe",
+            "$env:LOCALAPPDATA\micromamba\micromamba.exe",
+            "C:\Program Files\micromamba\micromamba.exe"
+        )
+        foreach ($cand in $candidatePaths) {
+            if (Test-Path $cand) {
+                $mambaExe = $cand
+                $binFolder = Split-Path -Path $cand -Parent
+                if ($env:PATH -notlike "*$binFolder*") {
+                    $env:PATH = "$env:PATH;$binFolder"
+                }
+                break
+            }
+        }
+    }
+
+    if (-not $mambaExe) {
+        if ($DryRun) {
+            Write-Host "[DryRun] Would download standalone Micromamba binary to $mambaBinDir\micromamba.exe" -ForegroundColor DarkCyan
+            $mambaExe = "$mambaBinDir\micromamba.exe"
+        }
+        else {
+            Write-Host "Bootstrapping standalone Micromamba..." -ForegroundColor Cyan
+            if (-not (Test-Path $mambaBinDir)) {
+                New-Item -ItemType Directory -Path $mambaBinDir -Force | Out-Null
+            }
+            $targetExe = "$mambaBinDir\micromamba.exe"
+            $downloadUrl = "https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-win-64.exe"
+            try {
+                Invoke-WebRequest -Uri $downloadUrl -OutFile $targetExe -UseBasicParsing
+                $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+                if ($userPath -notlike "*$mambaBinDir*") {
+                    [Environment]::SetEnvironmentVariable("Path", "$userPath;$mambaBinDir", "User")
+                }
+                $env:PATH = "$env:PATH;$mambaBinDir"
+                $mambaExe = $targetExe
+            }
+            catch {
+                Write-Warning "Could not bootstrap standalone Micromamba: $_"
+            }
+        }
+    }
+
+    # 3.2 Helper function to install packages via Micromamba
+    function Install-CliTool {
+        param (
+            [string]$PackageName,
+            [string]$CommandCheck,
+            [string]$WingetId
+        )
+
+        $installed = if ($CommandCheck) { (Get-Command $CommandCheck -ErrorAction SilentlyContinue) -ne $null } else { $false }
+        if ($installed) {
+            Write-Host "$PackageName is already installed." -ForegroundColor DarkGray
+            return
+        }
+
+        if ($DryRun) {
+            Write-Host "[DryRun] Would install $PackageName via Micromamba (channel: conda-forge)" -ForegroundColor DarkCyan
+            return
+        }
+
+        if ($mambaExe -and (Test-Path $mambaExe)) {
+            Write-Host "Installing $PackageName via Micromamba..." -ForegroundColor Cyan
+            try {
+                & $mambaExe install -n base -c conda-forge $PackageName -y
+                return
+            }
+            catch {
+                Write-Warning "Micromamba installation of $PackageName failed: $_"
+            }
+        }
+
+        # Fallback to winget if available
+        if ($WingetId -and (Get-Command winget -ErrorAction SilentlyContinue)) {
+            Write-Host "Falling back to winget for $PackageName ($WingetId)..." -ForegroundColor Cyan
+            try {
+                winget install --id $WingetId -e --source winget --accept-source-agreements --accept-package-agreements
+            }
+            catch {
+                Write-Warning "Winget installation of $PackageName failed: $_"
+            }
+        }
+    }
+
+    # Install CLI tools via Micromamba (with winget fallback)
+    Install-CliTool -PackageName "git" -CommandCheck "git" -WingetId "Git.Git"
+    Install-CliTool -PackageName "gnupg" -CommandCheck "gpg" -WingetId "GnuPG.Gpg4win"
+    Install-CliTool -PackageName "gh" -CommandCheck "gh" -WingetId "GitHub.cli"
+    Install-CliTool -PackageName "oh-my-posh" -CommandCheck "oh-my-posh" -WingetId "JanDeDobbeleer.OhMyPosh"
+
+    # 3.3 Helper function to install Windows GUI packages via Winget
     $hasWinget = (Get-Command winget -ErrorAction SilentlyContinue) -ne $null
     if (-not $hasWinget -and -not $DryRun) {
         Write-Host "Winget not found. Attempting to bootstrap Windows Package Manager..." -ForegroundColor Cyan
@@ -178,8 +279,7 @@ if (-not $SkipDependencies) {
         }
     }
 
-    # Helper function to install packages via winget
-    function Install-WingetPackage {
+    function Install-GuiPackage {
         param (
             [string]$Id,
             [string]$Name,
@@ -207,16 +307,13 @@ if (-not $SkipDependencies) {
             }
         }
         else {
-            Write-Warning "Winget is unavailable; skipping automated installation of $Name ($Id)."
+            Write-Warning "Winget is unavailable; skipping installation of $Name ($Id)."
         }
     }
 
-    # Core tools
-    Install-WingetPackage -Id "Git.Git" -Name "Git for Windows" -CommandCheck "git"
-    Install-WingetPackage -Id "Microsoft.PowerShell" -Name "PowerShell 7" -CommandCheck "pwsh"
-    Install-WingetPackage -Id "Microsoft.WindowsTerminal" -Name "Windows Terminal" -CommandCheck "wt"
-    Install-WingetPackage -Id "GnuPG.Gpg4win" -Name "Gpg4win / GnuPG" -CommandCheck "gpg"
-    Install-WingetPackage -Id "Microsoft.VisualStudioCode" -Name "Visual Studio Code" -CommandCheck "code"
+    Install-GuiPackage -Id "Microsoft.PowerShell" -Name "PowerShell 7" -CommandCheck "pwsh"
+    Install-GuiPackage -Id "Microsoft.WindowsTerminal" -Name "Windows Terminal" -CommandCheck "wt"
+    Install-GuiPackage -Id "Microsoft.VisualStudioCode" -Name "Visual Studio Code" -CommandCheck "code"
 
     # Refresh PATH environment variable in current session
     $env:PATH = [Environment]::GetEnvironmentVariable("Path", "Machine") + ";" + [Environment]::GetEnvironmentVariable("Path", "User")

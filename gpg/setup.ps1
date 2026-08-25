@@ -13,14 +13,14 @@ if (-not (Get-Command Set-Softlink -ErrorAction SilentlyContinue)) {
     . (Join-Path -Path $PSScriptRoot -ChildPath "..\scripts\common.ps1")
 }
 
-# Install GnuPG via winget if not present
+# Install GnuPG via Micromamba (or fallback to winget) if not present
 if (-not (Get-Command gpg -ErrorAction SilentlyContinue)) {
-    if ($DryRun) {
-        Write-Host "[DryRun] Would install GnuPG via winget" -ForegroundColor DarkCyan
-    }
-    elseif ($PSCmdlet.ShouldProcess("GnuPG", "Install via winget")) {
-        Write-Host "Installing GnuPG..." -ForegroundColor Cyan
-        winget install --id GnuPG.GnuPG -e --source winget --accept-source-agreements --accept-package-agreements
+    $installed = Install-MambaPackage -PackageName "gnupg" -CommandCheck "gpg" -DryRun:$DryRun
+    if (-not $installed -and -not $DryRun) {
+        if ($PSCmdlet.ShouldProcess("GnuPG", "Install via winget")) {
+            Write-Host "Falling back to winget for GnuPG..." -ForegroundColor Cyan
+            winget install --id GnuPG.GnuPG -e --source winget --accept-source-agreements --accept-package-agreements
+        }
     }
 }
 else {

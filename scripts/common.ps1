@@ -232,3 +232,110 @@ function Find-Installed {
 
     return $false
 }
+
+function Ensure-Micromamba {
+    <#
+    .SYNOPSIS
+        Ensures Micromamba executable is available and in PATH.
+    #>
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [switch]$DryRun
+    )
+
+    if (Get-Command micromamba -ErrorAction SilentlyContinue) {
+        return (Get-Command micromamba).Source
+    }
+
+    $candidatePaths = @(
+        "$HOME\.local\bin\micromamba.exe",
+        "$HOME\micromamba\bin\micromamba.exe",
+        "$env:LOCALAPPDATA\micromamba\micromamba.exe",
+        "C:\Program Files\micromamba\micromamba.exe"
+    )
+
+    foreach ($cand in $candidatePaths) {
+        if (Test-Path $cand) {
+            $binDir = Split-Path -Path $cand -Parent
+            if ($env:PATH -notlike "*$binDir*") {
+                $env:PATH = "$env:PATH;$binDir"
+            }
+            return $cand
+        }
+    }
+
+    if ($DryRun) {
+        Write-Host "[DryRun] Would download standalone Micromamba binary to $HOME\.local\bin\micromamba.exe" -ForegroundColor DarkCyan
+        return "$HOME\.local\bin\micromamba.exe"
+    }
+
+    if ($PSCmdlet.ShouldProcess("Micromamba", "Download standalone binary")) {
+        Write-Host "Bootstrapping standalone Micromamba..." -ForegroundColor Cyan
+        $mambaBinDir = "$HOME\.local\bin"
+        New-Directory -Path $mambaBinDir
+        $targetExe = "$mambaBinDir\micromamba.exe"
+        $downloadUrl = "https://github.com/mamba-org/micromamba-releases/releases/latest/download/micromamba-win-64.exe"
+
+        try {
+            Invoke-WebRequest -Uri $downloadUrl -OutFile $targetExe -UseBasicParsing
+            $userPath = [Environment]::GetEnvironmentVariable("Path", "User")
+            if ($userPath -notlike "*$mambaBinDir*") {
+                [Environment]::SetEnvironmentVariable("Path", "$userPath;$mambaBinDir", "User")
+            }
+            if ($env:PATH -notlike "*$mambaBinDir*") {
+                $env:PATH = "$env:PATH;$mambaBinDir"
+            }
+            return $targetExe
+        }
+        catch {
+            Write-Warning "Could not bootstrap standalone Micromamba: $_"
+            return $null
+        }
+    }
+    return $null
+}
+
+function Install-MambaPackage {
+    <#
+    .SYNOPSIS
+        Installs a package via Micromamba from conda-forge.
+    #>
+    [CmdletBinding(SupportsShouldProcess)]
+    param (
+        [Parameter(Mandatory = $true)]
+        [string]$PackageName,
+        [string]$CommandCheck,
+        [string]$Environment = "base",
+        [switch]$DryRun
+    )
+
+    if ($CommandCheck -and (Get-Command $CommandCheck -ErrorAction SilentlyContinue)) {
+        Write-Host "$PackageName is already installed." -ForegroundColor DarkGray
+        return $true
+    }
+
+    $mambaExe = Ensure-Micromamba -DryRun:$DryRun
+    if (-not $mambaExe) {
+        Write-Warning "Micromamba is not available to install '$PackageName'."
+        return $false
+    }
+
+    if ($DryRun) {
+        Write-Host "[DryRun] Would install $PackageName via Micromamba (env: $Environment, channel: conda-forge)" -ForegroundColor DarkCyan
+        return $true
+    }
+
+    if ($PSCmdlet.ShouldProcess($PackageName, "Install via Micromamba")) {
+        Write-Host "Installing $PackageName via Micromamba (env: $Environment)..." -ForegroundColor Cyan
+        try {
+            & $mambaExe install -n $Environment -c conda-forge $PackageName -y
+            return $true
+        }
+        catch {
+            Write-Warning "Micromamba installation of '$PackageName' failed: $_"
+            return $false
+        }
+    }
+
+    return $false
+}

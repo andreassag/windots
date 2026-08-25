@@ -25,14 +25,14 @@ if (-not $DryRun) {
     }
 }
 
-# Install Oh-My-Posh via winget
+# Install Oh-My-Posh via Micromamba (or fallback to winget)
 if (-not (Get-Command oh-my-posh -ErrorAction SilentlyContinue)) {
-    if ($DryRun) {
-        Write-Host "[DryRun] Would install Oh-My-Posh via winget" -ForegroundColor DarkCyan
-    }
-    elseif ($PSCmdlet.ShouldProcess("Oh-My-Posh", "Install via winget")) {
-        Write-Host "Installing Oh-My-Posh..." -ForegroundColor Cyan
-        winget install --id JanDeDobbeleer.OhMyPosh -e --source winget --accept-source-agreements --accept-package-agreements
+    $installed = Install-MambaPackage -PackageName "oh-my-posh" -CommandCheck "oh-my-posh" -DryRun:$DryRun
+    if (-not $installed -and -not $DryRun) {
+        if ($PSCmdlet.ShouldProcess("Oh-My-Posh", "Install via winget")) {
+            Write-Host "Falling back to winget for Oh-My-Posh..." -ForegroundColor Cyan
+            winget install --id JanDeDobbeleer.OhMyPosh -e --source winget --accept-source-agreements --accept-package-agreements
+        }
     }
 }
 else {
