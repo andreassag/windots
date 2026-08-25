@@ -62,6 +62,11 @@ jobs:
         run: |
           .\setup.ps1 -DryRun -Components git,vscode,terminal,powershell,mamba -SkipElevationCheck
 
+      - name: Test Standalone Installer in DryRun Mode
+        shell: pwsh
+        run: |
+          .\install.ps1 -DryRun -SkipElevationCheck -Destination "$HOME\repo\windots"
+
       - name: Test Uninstaller in DryRun Mode
         shell: pwsh
         run: |
