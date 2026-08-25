@@ -347,6 +347,10 @@ if (-not $SkipDependencies) {
 # 4. Launch setup.ps1 Orchestrator
 # -----------------------------------------------------------------------------
 $setupScript = Join-Path $Destination "setup.ps1"
+if (-not (Test-Path $setupScript) -and $PSScriptRoot -and (Test-Path (Join-Path $PSScriptRoot "setup.ps1"))) {
+    $setupScript = Join-Path $PSScriptRoot "setup.ps1"
+}
+
 if (Test-Path $setupScript) {
     Write-Host "`nLaunching dotfiles setup from '$setupScript'..." -ForegroundColor "Yellow"
 
@@ -362,7 +366,8 @@ if (Test-Path $setupScript) {
         $setupParams["Components"] = [string[]]$parsedComponents
     }
 
-    Push-Location $Destination
+    $execDir = Split-Path -Path $setupScript -Parent
+    Push-Location $execDir
     try {
         & $setupScript @setupParams
     }
@@ -372,6 +377,9 @@ if (Test-Path $setupScript) {
     finally {
         Pop-Location
     }
+}
+elseif ($DryRun) {
+    Write-Host "`n[DryRun] Would launch dotfiles setup from '$Destination\setup.ps1'" -ForegroundColor DarkCyan
 }
 else {
     Write-Error "Setup orchestrator not found at '$setupScript'."
