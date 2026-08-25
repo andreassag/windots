@@ -14,16 +14,16 @@
                         "id":  "User.paste"
                     },
                     {
+                        "command":  "find",
+                        "id":  "User.find"
+                    },
+                    {
                         "command":  {
                                         "action":  "splitPane",
                                         "split":  "auto",
                                         "splitMode":  "duplicate"
                                     },
                         "id":  "User.splitPane.A6751878"
-                    },
-                    {
-                        "command":  "find",
-                        "id":  "User.find"
                     }
                 ],
     "copyFormatting":  "none",
@@ -35,12 +35,12 @@
                             "keys":  "ctrl+c"
                         },
                         {
-                            "id":  "User.find",
-                            "keys":  "ctrl+shift+f"
-                        },
-                        {
                             "id":  "User.paste",
                             "keys":  "ctrl+v"
+                        },
+                        {
+                            "id":  "User.find",
+                            "keys":  "ctrl+shift+f"
                         },
                         {
                             "id":  "User.splitPane.A6751878",
@@ -78,15 +78,16 @@
                                       "name":  "Command Prompt"
                                   },
                                   {
+                                      "commandline":  "\"C:\\Program Files\\Git\\bin\\bash.exe\" -i -l",
                                       "guid":  "{2ece5bfe-50ed-5f3a-ab87-5cd4baafed2b}",
                                       "hidden":  false,
+                                      "icon":  "C:\\Program Files\\Git\\mingw64\\share\\git\\git-for-windows.ico",
                                       "name":  "Git Bash",
-                                      "commandline":  "\"C:\\Program Files\\Git\\bin\\bash.exe\" -i -l",
-                                      "icon":  "C:\\Program Files\\Git\\mingw64\\share\\git\\git-for-windows.ico"
+                                      "source":  "Git"
                                   },
                                   {
                                       "colorScheme":  "Solarized Dark",
-                                      "commandline":  "micromamba.exe run -n R radian",
+                                      "commandline":  "C:\\Users\\andre\\AppData\\Local\\Microsoft\\WinGet\\Links\\micromamba.exe run -n R radian",
                                       "font":  {
                                                    "face":  "CaskaydiaCove Nerd Font"
                                                },
@@ -114,6 +115,12 @@
                                       "hidden":  false,
                                       "name":  "openSUSE-Tumbleweed",
                                       "source":  "Microsoft.WSL"
+                                  },
+                                  {
+                                      "guid":  "{574e775e-4f2a-5b96-ac1e-a2962a402336}",
+                                      "hidden":  false,
+                                      "name":  "PowerShell",
+                                      "source":  "Windows.Terminal.PowershellCore"
                                   }
                               ]
                  },

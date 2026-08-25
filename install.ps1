@@ -172,6 +172,7 @@ if (-not $SkipDependencies) {
         $candidatePaths = @(
             "$mambaBinDir\micromamba.exe",
             "$HOME\micromamba\bin\micromamba.exe",
+            "$env:LOCALAPPDATA\Microsoft\WinGet\Links\micromamba.exe",
             "$env:LOCALAPPDATA\micromamba\micromamba.exe",
             "C:\Program Files\micromamba\micromamba.exe"
         )
@@ -361,11 +362,15 @@ if (Test-Path $setupScript) {
         $setupParams["Components"] = [string[]]$parsedComponents
     }
 
+    Push-Location $Destination
     try {
         & $setupScript @setupParams
     }
     catch {
         Write-Error "Setup failed during execution: $_"
+    }
+    finally {
+        Pop-Location
     }
 }
 else {

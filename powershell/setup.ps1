@@ -47,17 +47,23 @@ $modules = @(
 )
 
 foreach ($mod in $modules) {
-    if (-not (Get-Module -ListAvailable -Name $mod)) {
+    $existingMod = Get-Module -ListAvailable -Name $mod | Sort-Object Version -Descending | Select-Object -First 1
+    $needsInstall = ($existingMod -eq $null)
+    if ($mod -eq "PSReadLine" -and $existingMod -and ($existingMod.Version -lt [version]"2.2.0")) {
+        $needsInstall = $true
+    }
+
+    if ($needsInstall) {
         if ($DryRun) {
-            Write-Host "[DryRun] Would install PowerShell module: $mod" -ForegroundColor DarkCyan
+            Write-Host "[DryRun] Would install/update PowerShell module: $mod" -ForegroundColor DarkCyan
         }
         else {
-            Write-Host "Installing module: $mod..." -ForegroundColor Cyan
+            Write-Host "Installing/updating module: $mod..." -ForegroundColor Cyan
             Install-Module -Name $mod -Scope CurrentUser -Force -AllowClobber -SkipPublisherCheck -ErrorAction SilentlyContinue
         }
     }
     else {
-        Write-Host "Module '$mod' is already installed." -ForegroundColor DarkGray
+        Write-Host "Module '$mod' (v$($existingMod.Version)) is already installed." -ForegroundColor DarkGray
     }
 }
 

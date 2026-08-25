@@ -49,7 +49,7 @@ if (Test-Path (Join-Path $PSScriptRoot ".git")) {
     if (Test-Path $hooksDir) {
         Write-Host "Configuring git hooks path to .githooks..." -ForegroundColor "DarkGray"
         if (-not $DryRun) {
-            git config core.hooksPath .githooks
+            git -C $PSScriptRoot config core.hooksPath .githooks
         }
     }
 }

@@ -250,6 +250,7 @@ function Ensure-Micromamba {
     $candidatePaths = @(
         "$HOME\.local\bin\micromamba.exe",
         "$HOME\micromamba\bin\micromamba.exe",
+        "$env:LOCALAPPDATA\Microsoft\WinGet\Links\micromamba.exe",
         "$env:LOCALAPPDATA\micromamba\micromamba.exe",
         "C:\Program Files\micromamba\micromamba.exe"
     )
