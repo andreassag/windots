@@ -77,7 +77,7 @@ foreach ($component in $Components) {
     if (Test-Path -Path $componentScript) {
         Write-Host "`n--> Running setup for: $component" -ForegroundColor "Yellow"
         try {
-            . $componentScript -DryRun:$DryRun
+            & $componentScript -DryRun:$DryRun
         }
         catch {
             Write-Error "Error executing $component setup: $_"

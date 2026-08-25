@@ -5,3 +5,7 @@ channel_priority: strict
 always_yes: true
 show_channel_urls: true
 auto_activate_base: false
+pkgs_dirs:
+  - ~/micromamba/pkgs
+envs_dirs:
+  - ~/micromamba/envs

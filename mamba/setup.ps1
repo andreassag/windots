@@ -29,13 +29,44 @@ if ($DryRun) {
 }
 elseif ($hasMamba) {
     Write-Host "Checking Micromamba 'R' environment..." -ForegroundColor Cyan
-    $envList = micromamba env list 2>&1
-    if ($envList -notmatch "(?m)^R\s+") {
+    
+    $rEnvPath = $null
+    try {
+        $envList = micromamba env list 2>&1
+        foreach ($line in ($envList -split "`r?`n")) {
+            if ($line -match "^\s*R\s+(?<Path>.+)$") {
+                $rEnvPath = $Matches['Path'].Trim()
+                break
+            }
+        }
+    }
+    catch { }
+
+    $hasRadian = $false
+    if ($rEnvPath -and (Test-Path $rEnvPath)) {
+        $radianCheck = @(
+            (Join-Path $rEnvPath "Scripts\radian.exe"),
+            (Join-Path $rEnvPath "bin\radian.exe"),
+            (Join-Path $rEnvPath "radian.exe")
+        )
+        foreach ($rc in $radianCheck) {
+            if (Test-Path $rc) {
+                $hasRadian = $true
+                break
+            }
+        }
+    }
+
+    if (-not $rEnvPath) {
         Write-Host "Creating Micromamba environment 'R' (latest r-base + radian)..." -ForegroundColor Cyan
         micromamba create -n R -c conda-forge r-base radian -y
     }
+    elseif (-not $hasRadian) {
+        Write-Host "Installing missing r-base and radian into existing 'R' environment..." -ForegroundColor Cyan
+        micromamba install -n R -c conda-forge r-base radian -y
+    }
     else {
-        Write-Host "Micromamba environment 'R' already exists." -ForegroundColor DarkGray
+        Write-Host "Micromamba environment 'R' (with Radian) is up to date." -ForegroundColor DarkGray
     }
 }
 

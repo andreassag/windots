@@ -24,13 +24,20 @@ $gitBashCandidates = @(
 
 if (Get-Command git -ErrorAction SilentlyContinue) {
     $gitCmd = (Get-Command git).Source
-    $gitRoot = Split-Path -Path (Split-Path -Path $gitCmd -Parent) -Parent
-    $gitBashCandidates = @(Join-Path $gitRoot "bin\bash.exe") + $gitBashCandidates
+    if ($gitCmd) {
+        $parent1 = Split-Path -Path $gitCmd -Parent -ErrorAction SilentlyContinue
+        if ($parent1) {
+            $gitRoot = Split-Path -Path $parent1 -Parent -ErrorAction SilentlyContinue
+            if ($gitRoot) {
+                $gitBashCandidates = @(Join-Path $gitRoot "bin\bash.exe") + $gitBashCandidates
+            }
+        }
+    }
 }
 
 $detectedGitBash = $null
 foreach ($candidate in $gitBashCandidates) {
-    if (Test-Path $candidate) {
+    if ($candidate -and (Test-Path $candidate)) {
         $detectedGitBash = $candidate
         break
     }
@@ -38,6 +45,7 @@ foreach ($candidate in $gitBashCandidates) {
 
 # 2. Discover Mamba / Micromamba path
 $mambaCandidates = @(
+    "$env:LOCALAPPDATA\Microsoft\WinGet\Links\micromamba.exe",
     "$HOME\micromamba\bin\micromamba.exe",
     "$HOME\.local\bin\micromamba.exe",
     "$env:LOCALAPPDATA\micromamba\micromamba.exe",
@@ -45,21 +53,41 @@ $mambaCandidates = @(
 )
 
 if (Get-Command mamba -ErrorAction SilentlyContinue) {
-    $mambaCandidates = @((Get-Command mamba).Source) + $mambaCandidates
+    $mambaCmd = (Get-Command mamba).Source
+    if ($mambaCmd) { $mambaCandidates = @($mambaCmd) + $mambaCandidates }
 }
 if (Get-Command micromamba -ErrorAction SilentlyContinue) {
-    $mambaCandidates = @((Get-Command micromamba).Source) + $mambaCandidates
+    $mambaCmd = (Get-Command micromamba).Source
+    if ($mambaCmd) { $mambaCandidates = @($mambaCmd) + $mambaCandidates }
 }
 
 $detectedMamba = if (Get-Command mamba -ErrorAction SilentlyContinue) { "mamba.exe" } else { "micromamba.exe" }
 foreach ($candidate in $mambaCandidates) {
-    if (Test-Path $candidate) {
+    if ($candidate -and (Test-Path $candidate)) {
         $detectedMamba = $candidate
         break
     }
 }
 
-# 3. Update settings.json with discovered paths
+# 3. Discover Radian path
+$radianCandidates = @(
+    "$HOME\AppData\Roaming\mamba\envs\R\Scripts\radian.exe",
+    "$HOME\micromamba\envs\R\Scripts\radian.exe",
+    "$env:APPDATA\mamba\envs\R\Scripts\radian.exe"
+)
+if (Get-Command radian -ErrorAction SilentlyContinue) {
+    $rCmd = (Get-Command radian).Source
+    if ($rCmd) { $radianCandidates = @($rCmd) + $radianCandidates }
+}
+$detectedRadian = $null
+foreach ($rc in $radianCandidates) {
+    if ($rc -and (Test-Path $rc)) {
+        $detectedRadian = $rc
+        break
+    }
+}
+
+# 4. Update settings.json with discovered paths
 if (Test-Path $sourceSettings) {
     try {
         $jsonContent = Get-Content -Path $sourceSettings -Raw | ConvertFrom-Json
@@ -70,9 +98,15 @@ if (Test-Path $sourceSettings) {
             $gitProfile = $jsonContent.profiles.list | Where-Object { $_.guid -eq "{2ece5bfe-50ed-5f3a-ab87-5cd4baafed2b}" -or $_.name -eq "Git Bash" }
             if ($gitProfile) {
                 $gitProfile.commandline = "`"$detectedGitBash`" -i -l"
-                $gitIcon = Join-Path (Split-Path (Split-Path $detectedGitBash -Parent) -Parent) "mingw64\share\git\git-for-windows.ico"
-                if (Test-Path $gitIcon) {
-                    $gitProfile.icon = $gitIcon
+                $parent1 = Split-Path -Path $detectedGitBash -Parent -ErrorAction SilentlyContinue
+                if ($parent1) {
+                    $parent2 = Split-Path -Path $parent1 -Parent -ErrorAction SilentlyContinue
+                    if ($parent2) {
+                        $gitIcon = Join-Path $parent2 "mingw64\share\git\git-for-windows.ico"
+                        if (Test-Path $gitIcon) {
+                            $gitProfile.icon = $gitIcon
+                        }
+                    }
                 }
                 $modified = $true
                 Write-Host "Injected Git Bash path: $detectedGitBash" -ForegroundColor DarkGray
@@ -82,7 +116,12 @@ if (Test-Path $sourceSettings) {
         # Update R (radian) profile
         $rProfile = $jsonContent.profiles.list | Where-Object { $_.guid -eq "{8b6d8ec4-512c-4c4f-a9db-484725357f89}" -or $_.name -like "R*" }
         if ($rProfile) {
-            $rProfile.commandline = "$detectedMamba run -n R radian"
+            if ($detectedRadian) {
+                $rProfile.commandline = "`"$detectedRadian`""
+            }
+            else {
+                $rProfile.commandline = "`"$detectedMamba`" run -n R radian"
+            }
             $modified = $true
             Write-Host "Injected R (radian) command: $($rProfile.commandline)" -ForegroundColor DarkGray
         }

@@ -13,11 +13,11 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
     Set-PSReadLineKeyHandler -Key Ctrl+d -Function DeleteChar -ErrorAction SilentlyContinue
     Set-PSReadLineKeyHandler -Key Ctrl+z -Function Undo -ErrorAction SilentlyContinue
 
-    # Predictive IntelliSense (supported in PSReadLine 2.2.0+ in interactive consoles)
+    # Predictive IntelliSense from Command History (supported in PSReadLine 2.2.0+)
     $setOptionCmd = Get-Command Set-PSReadLineOption -ErrorAction SilentlyContinue
     $isRedirected = try { [Console]::IsOutputRedirected } catch { $false }
     if ($setOptionCmd -and $setOptionCmd.Parameters.ContainsKey('PredictionSource') -and -not $isRedirected) {
-        Set-PSReadLineOption -PredictionSource HistoryAndPlugin -ErrorAction SilentlyContinue
+        Set-PSReadLineOption -PredictionSource History -ErrorAction SilentlyContinue
         if ($setOptionCmd.Parameters.ContainsKey('PredictionViewStyle')) {
             Set-PSReadLineOption -PredictionViewStyle InlineView -ErrorAction SilentlyContinue
         }
@@ -38,13 +38,6 @@ if (Get-Module -ListAvailable -Name PSReadLine) {
         $colorTable["InlinePrediction"] = "DarkGray"
     }
     Set-PSReadLineOption -Colors $colorTable -ErrorAction SilentlyContinue
-}
-
-# =============================================================================
-# Terminal Icons
-# =============================================================================
-if (Get-Module -ListAvailable -Name Terminal-Icons) {
-    Import-Module Terminal-Icons -ErrorAction SilentlyContinue
 }
 
 # =============================================================================

@@ -42,7 +42,6 @@ else {
 # Install recommended PowerShell modules
 $modules = @(
     "PSReadLine",
-    "Terminal-Icons",
     "PSScriptAnalyzer"
 )
 

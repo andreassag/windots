@@ -87,7 +87,7 @@
                                   },
                                   {
                                       "colorScheme":  "Solarized Dark",
-                                      "commandline":  "C:\\Users\\andre\\AppData\\Local\\Microsoft\\WinGet\\Links\\micromamba.exe run -n R radian",
+                                      "commandline":  "\"C:\\Users\\andre\\AppData\\Roaming\\mamba\\envs\\R\\Scripts\\radian.exe\"",
                                       "font":  {
                                                    "face":  "CaskaydiaCove Nerd Font"
                                                },
